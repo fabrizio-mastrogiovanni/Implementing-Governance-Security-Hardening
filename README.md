@@ -1,4 +1,4 @@
-Governance & Security Hardening on Azure
+## Governance & Security Hardening on Azure
 
 **Author:** Fabrizio Mastrogiovanni
 **Cost:** $0 — no billable resources are deployed
@@ -65,8 +65,8 @@ flowchart TB
 
 **Why Terraform is drawn as a peer of the portal, not a side door:** it authenticates with the same Entra ID identity and submits the same ARM requests. If the Policy assignment in Phase 4 were in place before a non-compliant `terraform apply`, Terraform would fail with the same `RequestDisallowedByPolicy` — surfaced as an apply error instead of a red banner. IaC does not sit outside governance.
 
-<!-- SCREENSHOT: overall resource group overview after setup -->
-![Resource group overview](./images/00-resource-group-overview.png)
+<img width="1234" height="637" alt="395274D3-1FF2-4C03-90E7-49496B8BA961_1_105_c" src="https://github.com/user-attachments/assets/6a7a8c1e-bb39-498e-9ce4-24a48031e30e" />
+
 
 ---
 
@@ -127,8 +127,8 @@ provider "azurerm" {
 > ```
 > The provider reads `ARM_SUBSCRIPTION_ID` automatically. This keeps a tenant-identifying value out of the repo.
 
-<!-- SCREENSHOT: provider.tf in VS Code -->
-![provider.tf](./images/01a-provider-tf.png)
+<img width="3158" height="2098" alt="9F238CF3-6F88-4E3E-8D48-0248A39E12B0" src="https://github.com/user-attachments/assets/80d34012-b376-4c77-b06a-646ff274ee52" />
+
 
 ### 5.2 `main.tf`
 
@@ -149,8 +149,8 @@ resource "azurerm_virtual_network" "example" {
 
 Referencing `azurerm_resource_group.example.name` rather than retyping the string is what creates the implicit dependency graph — Terraform will create the RG first and destroy it last without being told to.
 
-<!-- SCREENSHOT: main.tf in VS Code -->
-![main.tf](./images/01b-main-tf.png)
+<img width="1392" height="564" alt="395EAD85-503D-4EE4-A721-A7EC5D113416_1_105_c" src="https://github.com/user-attachments/assets/d3ab94ec-f7f8-4da7-8015-7dbce11d13d7" />
+
 
 ### 5.3 Deploy
 
@@ -176,9 +176,6 @@ azurerm_virtual_network.example: Creation complete after 4s
 
 Apply complete! Resources: 2 added, 0 changed, 2 destroyed.
 ```
-
-<!-- SCREENSHOT: terraform apply output showing Apply complete -->
-![terraform apply](./images/01c-terraform-apply.png)
 
 > **The `2 destroyed` in my output was not a mistake — it was a rename.** I initially deployed as `rg-lab05`, then changed the `name` attribute to `rg-lab05-gov-fabrizio`. A Resource Group name is a **ForceNew** attribute: it cannot be updated in place, so Terraform destroys and recreates. The VNet went with it, because it depends on the RG. Always read the plan header — `2 to add, 2 to destroy` on what looks like a cosmetic edit is the provider telling you it's replacing infrastructure, not editing it.
 
@@ -208,9 +205,6 @@ If that returns nothing, the file is untracked but **not** ignored, and the next
 
 Commit `.terraform.lock.hcl` — it pins provider versions and belongs in the repo.
 
-<!-- SCREENSHOT: resource group in portal after terraform apply -->
-![Resource group deployed](./images/01d-rg-portal.png)
-
 ---
 
 ## 6. Phase 2 — RBAC: Assign Least Privilege
@@ -226,8 +220,8 @@ Commit `.terraform.lock.hcl` — it pins provider versions and belongs in the re
 
 > Note the full UPN including the `@<tenant>.onmicrosoft.com` suffix. You need it to sign in.
 
-<!-- SCREENSHOT: new user creation in Entra ID -->
-![Create Entra ID user](./images/02-create-user.png)
+<img width="1244" height="632" alt="0F97C6A0-996C-4EC8-B326-931FEB8BC83F_1_105_c" src="https://github.com/user-attachments/assets/1b78f9c3-ef0b-4c5e-8d98-991fa6a1f6ea" />
+
 
 ### 6.2 Grant Reader on the Resource Group
 
@@ -237,8 +231,10 @@ Commit `.terraform.lock.hcl` — it pins provider versions and belongs in the re
 - Members: **+ Select members** → search `Junior Developer` → select → **Select**
 - **Review + assign** → **Review + assign**
 
-<!-- SCREENSHOT: role assignment confirmation on IAM blade -->
-![Reader role assigned](./images/03-rbac-assignment.png)
+<img width="1190" height="660" alt="F68B808C-65CF-42DB-A9A7-1FBF9885BD00_1_105_c" src="https://github.com/user-attachments/assets/e215e6d4-cc6f-4926-a862-3c31454136df" />
+<img width="3344" height="1856" alt="C612A6F4-A7F2-4CEA-A0AA-19D9F26F229E" src="https://github.com/user-attachments/assets/cbc69308-37a6-4a3a-a882-f12177f12444" />
+
+
 
 **Why Reader:** it grants read on all resource types in scope and write on none. It is the smallest role that still lets someone see the environment — the correct default for anyone who doesn't need to change things.
 
@@ -265,22 +261,14 @@ does not have authorization to perform action
 
 The Create button may also render disabled, depending on where in the flow validation fires.
 
-<!-- SCREENSHOT: authorization failed banner as junior-dev -->
-![Authorization denied](./images/04-rbac-denied.png)
+<img width="1254" height="626" alt="6C6A6F8F-EE24-471E-A74B-A0BE2D3A84E7_1_105_c" src="https://github.com/user-attachments/assets/df48d1ec-c8ff-48f1-a110-3f2da91cc5ea" />
+<img width="1264" height="621" alt="A9AD0861-39F5-4E43-9331-9F5123F7D101_1_105_c" src="https://github.com/user-attachments/assets/e1ffb7bd-ddf5-4a8b-9682-e745c203c98f" />
+<img width="1378" height="569" alt="3FC806B0-3995-4D4A-BB96-454B96C57770_1_105_c" src="https://github.com/user-attachments/assets/dc45b946-c5ca-42b2-b837-5f4378d06a90" />
+
 
 **Assertion 1 satisfied:** the identity can read the scope and cannot write to it.
 
 Close the Incognito window and return to your admin session.
-
-**Optional CLI verification (as admin):**
-
-```bash
-az role assignment list \
-  --resource-group rg-lab05-gov-fabrizio \
-  --output table
-```
-
-Expected: a row with `Reader` and the Junior Developer principal, scoped to the RG — not the subscription.
 
 ---
 
@@ -301,8 +289,8 @@ RBAC restricts *people*. Policy restricts *requests*, including your own.
 
 **Review + create** → **Create**
 
-<!-- SCREENSHOT: policy assignment parameters showing allowed SKUs -->
-![Policy assignment](./images/05-policy-assignment.png)
+<img width="1264" height="621" alt="A9AD0861-39F5-4E43-9331-9F5123F7D101_1_105_c" src="https://github.com/user-attachments/assets/0a7ee2a9-2196-4c15-b41c-e5b22760349e" />
+
 
 > ⏱️ **Propagation delay:** assignments take roughly 10–30 minutes to become enforceable. If your test in Phase 5 succeeds when it should fail, the policy hasn't replicated yet — wait, don't rebuild it.
 
@@ -327,9 +315,9 @@ Policy assignment: Restrict-VM-Sizes
 Policy definition: Allowed virtual machine size SKUs
 Code: RequestDisallowedByPolicy
 ```
+<img width="1228" height="640" alt="E170D8AA-A573-4430-9FC1-49DD1409719F_1_105_c" src="https://github.com/user-attachments/assets/63f3f1ed-109d-49ff-a34c-7bbf1686397b" />
+<img width="1378" height="569" alt="3FC806B0-3995-4D4A-BB96-454B96C57770_1_105_c" src="https://github.com/user-attachments/assets/adf6ed40-8fc5-43d2-8624-f31727d1a4b8" />
 
-<!-- SCREENSHOT: validation failed with RequestDisallowedByPolicy -->
-![Policy blocked VM](./images/06-policy-denied.png)
 
 **Assertion 2 satisfied:** a subscription Owner was blocked by a governance control. This is the difference between a permission and a guardrail.
 
@@ -365,8 +353,9 @@ RBAC and Policy are preventive. Budgets are **detective** — they don't stop sp
 - Alert recipients: `growtonicconsulting@gmail.com`
 - **Create**
 
-<!-- SCREENSHOT: budget configuration and alert threshold -->
-![Budget configured](./images/07-budget.png)
+<img width="3390" height="1534" alt="F266DB74-AD81-4D0E-AE36-79860A4CDE16" src="https://github.com/user-attachments/assets/e3d2f4cf-e01f-4b11-a9ef-0b15ddd2d8f9" />
+<img width="2332" height="1850" alt="4C55F60C-7FB8-4C7F-8FFF-713962CD5B45" src="https://github.com/user-attachments/assets/50cba68c-801c-4f0b-b370-80bc71d05db1" />
+<img width="1158" height="679" alt="DBC6A8F7-B9B6-4BC6-98AE-C1017E2613B7_1_105_c" src="https://github.com/user-attachments/assets/0cb6e362-f3f5-45f2-971b-0bf99582ea95" />
 
 **Assertion 3 satisfied:** an alert fires at $40 of a $50 monthly ceiling.
 
@@ -444,93 +433,7 @@ The instinct is to think of Terraform as a privileged back channel. It isn't —
 
 ---
 
-## 14. Video Walkthrough Script
-
-> Target length: 8–10 minutes. Narration in plain text, actions in bold.
-
-**[0:00 — Open]**
-
-"This is Lab 05, governance and security hardening on Azure. In the previous labs I was building infrastructure. In this one I'm restricting it. I'm going to layer three controls on a single resource group and — this is the important part — I'm going to prove each one by getting denied."
-
-**[0:30 — Architecture]**
-
-**Show the diagram.**
-
-"Every request to Azure hits Resource Manager first, whether it comes from the portal, the CLI, or Terraform. RBAC is checked there, then Policy. That's why you can't route around either one by changing tools. RBAC asks who you are. Policy asks what you're requesting. Two different questions."
-
-**[1:15 — Resource group via Terraform]**
-
-**Show `provider.tf` and `main.tf` in VS Code.**
-
-"The lab builds the resource group in the portal. I'm doing it in Terraform instead, carrying forward Lab 04. Two resources — the group, and a virtual network inside it so the Reader identity has something real to look at later."
-
-**Run `terraform apply`. Pause on the plan header.**
-
-"One thing to point out here. My plan says two to add, two to destroy. That's because I renamed the resource group from `rg-lab05` to `rg-lab05-gov-fabrizio`. Resource group name is a ForceNew attribute — you can't rename in place, so Terraform destroys and recreates, and the VNet goes with it because it depends on the group. On an empty lab group that's thirty seconds. On a group with a database in it, that's an outage. Read the plan header before you type yes."
-
-**Type `yes`. Show `Apply complete! Resources: 2 added, 0 changed, 2 destroyed.`**
-
-"Scoping everything to this one group deliberately — the same policy at subscription scope would break every other lab in my repo."
-
-**[2:45 — Create the identity]**
-
-**Entra ID → Users → New user.**
-
-"Creating `junior-dev-fabrizio` — a test identity standing in for someone who needs visibility but no write access."
-
-**[2:45 — Assign Reader]**
-
-**RG → Access control (IAM) → Add role assignment → Reader.**
-
-"Reader grants read on every resource type in scope and write on none. It's the smallest role that still lets someone see what's running."
-
-**[3:30 — Prove the denial]**
-
-**Open Incognito. Sign in as junior-dev. Navigate to the RG. Attempt a Storage Account.**
-
-"The resource group is visible — Reader is working. Now watch the create attempt."
-
-**Show the AuthorizationFailed error. Read the action name aloud.**
-
-"`Microsoft.Storage/storageAccounts/write` — denied over this scope. First assertion done. That's the demonstration; the assignment by itself proves nothing."
-
-**[5:00 — Azure Policy]**
-
-**Policy → Assignments → Assign policy. Set scope to the RG. Select 'Allowed virtual machine size SKUs'. Restrict to B1s and B1ms.**
-
-"Now a completely different control. This one doesn't care who's asking."
-
-**[6:00 — Mention the delay]**
-
-"Assignments take ten to thirty minutes to replicate. If your test passes when it should fail, the policy hasn't landed yet — wait, don't rebuild it. I'm cutting ahead."
-
-**[6:20 — Prove the second denial]**
-
-**As admin: RG → Create → Virtual machine → Standard_D2s_v3 → Review + create.**
-
-"I'm Owner on this subscription. Watch."
-
-**Show `RequestDisallowedByPolicy`.**
-
-"Blocked. That's the whole point of Policy — it constrains me too. A permission you can grant yourself isn't a guardrail."
-
-**[7:30 — Budget]**
-
-**RG → Budgets → Add. $50, actual, 80%.**
-
-"RBAC and Policy are preventive. This one's detective — it doesn't stop spend, it tells me when I've hit forty dollars of a fifty-dollar ceiling. Different failure mode, so it's not redundant."
-
-**[8:15 — Close]**
-
-"Three controls, three verified outcomes: an unauthorized identity denied, a compliant-looking request from an Owner denied, and a spend threshold monitored.
-
-One last thing worth saying. I deployed this scope with Terraform, and it made no difference to any of it. Terraform authenticates as an identity and sends ARM requests like anything else — if I'd applied that SKU policy first and then tried to `terraform apply` a D-series VM, I'd have gotten the same `RequestDisallowedByPolicy`, just as an apply error instead of a red banner. Governance sits at Resource Manager. There's no tool you can switch to that gets around it.
-
-Full documentation is in the repo. Cleanup is `terraform destroy`, plus the policy assignment and the Entra ID user by hand — neither of those is in Terraform state, so neither goes away with the group."
-
----
-
-## 15. Repository Structure
+## 14. Repository Structure
 
 ```
 Governance-Security-Hardening5/
