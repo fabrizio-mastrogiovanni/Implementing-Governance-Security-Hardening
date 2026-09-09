@@ -261,10 +261,10 @@ does not have authorization to perform action
 
 The Create button may also render disabled, depending on where in the flow validation fires.
 
-<img width="1254" height="626" alt="6C6A6F8F-EE24-471E-A74B-A0BE2D3A84E7_1_105_c" src="https://github.com/user-attachments/assets/df48d1ec-c8ff-48f1-a110-3f2da91cc5ea" />
-<img width="1264" height="621" alt="A9AD0861-39F5-4E43-9331-9F5123F7D101_1_105_c" src="https://github.com/user-attachments/assets/e1ffb7bd-ddf5-4a8b-9682-e745c203c98f" />
-<img width="1378" height="569" alt="3FC806B0-3995-4D4A-BB96-454B96C57770_1_105_c" src="https://github.com/user-attachments/assets/dc45b946-c5ca-42b2-b837-5f4378d06a90" />
-
+<img width="1222" height="643" alt="EDCA4CFB-1486-41BE-919D-C3A1AAF3B676_1_105_c" src="https://github.com/user-attachments/assets/76aabb76-c0a4-42c6-bdfb-4860f2f860bd" />
+<img width="1210" height="620" alt="A688F3C9-1C70-444B-93A9-9D00F779EB28" src="https://github.com/user-attachments/assets/ea11e7c9-402e-431c-b8fd-65b4aff95e24" />
+<img width="1000" height="787" alt="A0D49728-1D2E-433F-B2EE-05D647CA9720_1_105_c" src="https://github.com/user-attachments/assets/3825597a-ac21-4ecc-8aa5-e1c2f43727c9" />
+<img width="1424" height="553" alt="5B134E9D-FAEF-4418-9041-B41AE5414A9F_1_105_c" src="https://github.com/user-attachments/assets/62031edb-95a2-43b3-9f4c-85e485c83248" />
 
 **Assertion 1 satisfied:** the identity can read the scope and cannot write to it.
 
